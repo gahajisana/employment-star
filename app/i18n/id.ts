@@ -31,6 +31,18 @@ export const id: Record<MessageKey, string> = {
   "action.logIn": "Masuk",
   "action.logOut": "Keluar",
 
+  "login.title": "Selamat datang kembali",
+  "login.subtitle": "Masuk untuk melanjutkan pencarian kerja Anda.",
+  "login.phone": "Nomor ponsel",
+  "login.email": "Email",
+  "login.phoneNumber": "Nomor ponsel",
+  "login.emailAddress": "Alamat email",
+  "login.code": "Kode verifikasi",
+  "login.sendCode": "Kirim kode",
+  "login.guest": "Lanjut sebagai tamu",
+  "login.unavailable": "Fitur masuk belum tersedia.",
+  "login.or": "atau",
+
   "status.saved": "Tersimpan",
   "status.loading": "Memuat",
   "status.required": "Wajib diisi",
