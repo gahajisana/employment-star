@@ -6,10 +6,27 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "employment-star",
 	"compatibility_date": "2026-11-18",
+	"compatibility_flags": ["nodejs_compat"],
 	"main": "./workers/app.ts",
 	"vars": {
-		"VALUE_FROM_CLOUDFLARE": "Hello from Cloudflare"
+		"VALUE_FROM_CLOUDFLARE": "Hello from Cloudflare",
+		"EMAIL_PROVIDER": "smtp",
+		"EMAIL_FROM": "noreply@cunny.my.id",
+		"EMAIL_FROM_NAME": "Employment Star",
+		"SMTP_HOST": "smtp.larksuite.com",
+		"SMTP_PORT": "587",
+		"SMTP_SECURE": "true",
+		"SMTP_AUTH_TYPE": "plain",
+		"SMTP_USER": "noreply@cunny.my.id"
 	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "employment-star",
+			"database_id": "4c68effd-5989-4e13-8b29-ef7a9ac879ae",
+			"migrations_dir": "drizzle/migrations"
+		}
+	],
 	"observability": {
 		"enabled": true
 	},
