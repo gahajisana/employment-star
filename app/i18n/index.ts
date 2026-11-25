@@ -1,7 +1,6 @@
 import { useParams } from "react-router";
 
-import { en, type MessageKey } from "./en";
-import { id } from "./id";
+import { en, id, type MessageKey } from "./glossary";
 
 export type { MessageKey };
 
@@ -70,7 +69,7 @@ export function useLang(): Lang {
   return isLang(lang) ? lang : DEFAULT_LANG;
 }
 
-/** `const t = useT(); t("nav.home")` */
+/** `const t = useT(); t("home")`. Keys come from the glossary (glossary.ts). */
 export function useT() {
   const lang = useLang();
   return (key: MessageKey, vars?: Record<string, string | number>) =>

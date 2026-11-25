@@ -48,15 +48,15 @@ export default function App() {
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   const t = useT();
-  let message = t("error.title");
-  let details = t("error.generic");
+  let message = t("error");
+  let details = t("somethingWentWrong");
   let stack: string | undefined;
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : t("error.title");
+    message = error.status === 404 ? "404" : t("error");
     details =
       error.status === 404
-        ? t("error.notFoundDetail")
+        ? t("theRequestedPageCouldNotBeFound")
         : error.statusText || details;
   } else if (import.meta.env.DEV && error && error instanceof Error) {
     details = error.message;
