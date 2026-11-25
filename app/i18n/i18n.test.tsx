@@ -3,15 +3,14 @@ import userEvent from "@testing-library/user-event";
 import { createRoutesStub, useLocation } from "react-router";
 import { describe, expect, it, vi } from "vitest";
 
-import { en, type MessageKey } from "./en";
-import { id } from "./id";
+import { en, id, type MessageKey } from "./glossary";
 import { pickLang, switchLangPath, translate, useT } from ".";
 import { LanguageSwitcher } from "./language-switcher";
 
 describe("translate", () => {
   it("returns the text for the active language", () => {
-    expect(translate("en", "nav.home")).toBe("Home");
-    expect(translate("id", "nav.home")).toBe("Beranda");
+    expect(translate("en", "home")).toBe("Home");
+    expect(translate("id", "home")).toBe("Beranda");
   });
 
   it("fills placeholders and leaves unknown ones untouched", () => {
@@ -66,7 +65,7 @@ describe("LanguageSwitcher", () => {
     return (
       <>
         <LanguageSwitcher />
-        <h1>{t("nav.profile")}</h1>
+        <h1>{t("myProfile")}</h1>
         <p data-testid="url">{pathname + search}</p>
         <input aria-label="draft" />
       </>

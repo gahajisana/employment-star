@@ -28,10 +28,10 @@ export default function Login() {
           <Card>
             <Typography.Text strong>Employment Star</Typography.Text>
             <Typography.Title id="login-title" level={1}>
-              {t("login.title")}
+              {t("welcomeBack")}
             </Typography.Title>
             <Typography.Paragraph type="secondary">
-              {t("login.subtitle")}
+              {t("logInToContinueYourJobSearch")}
             </Typography.Paragraph>
 
             <Tabs
@@ -41,17 +41,15 @@ export default function Login() {
                 setCode("");
               }}
               items={[
-                { key: "phone", label: t("login.phone") },
-                { key: "email", label: t("login.email") },
+                { key: "phone", label: t("phone") },
+                { key: "email", label: t("email") },
               ]}
             />
             <Form layout="vertical" onFinish={() => {}}>
               <Form.Item
                 htmlFor="login-contact"
                 label={
-                  method === "phone"
-                    ? t("login.phoneNumber")
-                    : t("login.emailAddress")
+                  method === "phone" ? t("phoneNumber") : t("emailAddress")
                 }
               >
                 {method === "phone" ? (
@@ -75,7 +73,7 @@ export default function Login() {
                   />
                 )}
               </Form.Item>
-              <Form.Item label={t("login.code")} htmlFor="login-code">
+              <Form.Item label={t("verificationCode")} htmlFor="login-code">
                 <Space.Compact block size="large">
                   <Input
                     id="login-code"
@@ -89,7 +87,7 @@ export default function Login() {
                     size="large"
                   />
                   <Button disabled size="large">
-                    {t("login.sendCode")}
+                    {t("sendCode")}
                   </Button>
                 </Space.Compact>
               </Form.Item>
@@ -100,14 +98,14 @@ export default function Login() {
                 block
                 disabled
               >
-                {t("action.logIn")}
+                {t("logIn")}
               </Button>
               <Typography.Paragraph type="secondary" role="status">
-                {t("login.unavailable")}
+                {t("loginIsNotAvailableYet")}
               </Typography.Paragraph>
             </Form>
-            <Divider plain>{t("login.or")}</Divider>
-            <Link to={`/${lang}`}>{t("login.guest")}</Link>
+            <Divider plain>{t("or")}</Divider>
+            <Link to={`/${lang}`}>{t("continueAsGuest")}</Link>
           </Card>
         </Col>
       </Row>
