@@ -29,6 +29,18 @@ export const en = {
   "action.logIn": "Log in",
   "action.logOut": "Log out",
 
+  "login.title": "Welcome back",
+  "login.subtitle": "Log in to continue your job search.",
+  "login.phone": "Phone",
+  "login.email": "Email",
+  "login.phoneNumber": "Phone number",
+  "login.emailAddress": "Email address",
+  "login.code": "Verification code",
+  "login.sendCode": "Send code",
+  "login.guest": "Continue as guest",
+  "login.unavailable": "Login is not available yet.",
+  "login.or": "or",
+
   "status.saved": "Saved",
   "status.loading": "Loading",
   "status.required": "Required",
