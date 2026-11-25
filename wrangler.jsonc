@@ -15,7 +15,7 @@
 		"EMAIL_FROM_NAME": "Employment Star",
 		"SMTP_HOST": "smtp.larksuite.com",
 		"SMTP_PORT": "587",
-		"SMTP_SECURE": "true",
+		"SMTP_SECURE": "false",
 		"SMTP_AUTH_TYPE": "plain",
 		"SMTP_USER": "noreply@cunny.my.id"
 	},
