@@ -197,15 +197,20 @@ export default function Login() {
                     disabled={isPhone}
                   />
                   <Button
+                    aria-label={
+                      cooldownRemaining > 0
+                        ? t("resendCodeInSecondsS", {
+                            seconds: cooldownRemaining,
+                          })
+                        : undefined
+                    }
                     disabled={!canSendCode}
                     loading={isSending}
                     onClick={handleSendCode}
                     size="large"
                   >
                     {cooldownRemaining > 0
-                      ? t("resendCodeInSecondsS", {
-                          seconds: cooldownRemaining,
-                        })
+                      ? `${cooldownRemaining}s`
                       : t("sendCode")}
                   </Button>
                 </Space.Compact>

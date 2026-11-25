@@ -55,6 +55,46 @@ describe("login page", () => {
     ).toHaveAttribute("href", "/id");
   });
 
+  it.each([
+    {
+      lang: "en",
+      emailLabel: "Email address",
+      sendLabel: "Send code",
+      countdownName: /Resend code in \d+s/,
+    },
+    {
+      lang: "id",
+      emailLabel: "Alamat email",
+      sendLabel: "Kirim kode",
+      countdownName: /Kirim ulang kode dalam \d+ dtk/,
+    },
+  ])(
+    "shows a compact resend countdown in $lang with a localized accessible name",
+    async ({ lang, emailLabel, sendLabel, countdownName }) => {
+      const Stub = createRoutesStub([
+        { path: "/:lang/login", Component: Login },
+        {
+          path: "/api/auth/send-code",
+          action: async () => ({ ok: true, cooldownSeconds: 56 }),
+        },
+      ]);
+      render(<Stub initialEntries={[`/${lang}/login`]} />);
+
+      await userEvent.click(screen.getByRole("tab", { name: "Email" }));
+      await userEvent.type(
+        screen.getByLabelText(emailLabel),
+        "user@example.com",
+      );
+      await userEvent.click(screen.getByRole("button", { name: sendLabel }));
+
+      const countdownButton = await screen.findByRole("button", {
+        name: countdownName,
+      });
+      expect(countdownButton).toHaveTextContent(/^\d+s$/);
+      expect(countdownButton).toBeDisabled();
+    },
+  );
+
   it("submits send-code and verify requests on the email tab", async () => {
     const sendSpy = vi.fn().mockResolvedValue({
       ok: true,
