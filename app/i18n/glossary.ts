@@ -519,6 +519,11 @@ export const en = {
   total: "Total",
   copyright: "Copyright",
   allRightsReserved: "All rights reserved",
+  logInToContinueYourJobSearch: "Log in to continue your job search.",
+  phone: "Phone",
+  email: "Email",
+  loginIsNotAvailableYet: "Login is not available yet.",
+  or: "or",
 } as const;
 
 export type MessageKey = keyof typeof en;
@@ -1043,4 +1048,9 @@ export const id: Record<MessageKey, string> = {
   total: "Total",
   copyright: "Hak cipta",
   allRightsReserved: "Seluruh hak dilindungi",
+  logInToContinueYourJobSearch: "Masuk untuk melanjutkan pencarian kerja Anda.",
+  phone: "Nomor ponsel",
+  email: "Email",
+  loginIsNotAvailableYet: "Fitur masuk belum tersedia.",
+  or: "atau",
 };
