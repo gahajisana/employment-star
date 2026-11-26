@@ -524,3 +524,7 @@
 523,Use {min} to {max} characters,Gunakan {min} sampai {max} karakter,Validation; keep {min} and {max}; needs native check,,,,,,,,,,,,,,,,
 524,"Use only letters, numbers, spaces and - / &","Gunakan hanya huruf, angka, spasi, dan - / &",Validation; needs native check,,,,,,,,,,,,,,,,
 525,Minimum salary cannot be higher than maximum salary,Gaji minimum tidak boleh lebih tinggi dari gaji maksimum,Validation; needs native check,,,,,,,,,,,,,,,,
+526,WhatsApp number,Nomor WhatsApp,Field label,,,,,,,,,,,,,,,,
+527,LinkedIn URL,URL LinkedIn,Field label,,,,,,,,,,,,,,,,
+528,Please enter a valid URL,Masukkan URL yang valid,Validation,,,,,,,,,,,,,,,,
+529,"Use only letters, spaces and . ' -","Gunakan hanya huruf, spasi, dan . ' -",Validation,,,,,,,,,,,,,,,,

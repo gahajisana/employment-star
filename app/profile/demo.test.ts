@@ -5,7 +5,6 @@ import {
   type CompletenessPart,
   completeness,
   DEMO_FILLED,
-  missingSections,
   RESUME_SECTIONS,
   WEIGHTS,
 } from "./demo";
@@ -24,21 +23,6 @@ describe("résumé completeness", () => {
     expect(
       completeness(new Set(Object.keys(WEIGHTS) as CompletenessPart[])),
     ).toBe(100);
-  });
-
-  it("lists missing résumé sections in report order, never jobIntention", () => {
-    expect(missingSections(new Set(DEMO_FILLED))).toEqual([
-      "workHistory",
-      "projectExperience",
-      "internshipExperience",
-      "languageProficiency",
-      "certificates",
-      "honoursAndAwards",
-      "careerPlan",
-    ]);
-    expect(missingSections(new Set(["jobIntention"]))).not.toContain(
-      "jobIntention",
-    );
   });
 
   it("allows applying from exactly 70%", () => {

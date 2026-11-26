@@ -1,3 +1,4 @@
+import { env } from "cloudflare:workers";
 import {
   Button,
   Cascader,
@@ -7,7 +8,8 @@ import {
   Select,
   Space,
 } from "antd";
-import { useState } from "react";
+import { useState, type KeyboardEvent } from "react";
+import { redirect, useLoaderData } from "react-router";
 
 import { REGIONS } from "../data/regions";
 import {
@@ -19,6 +21,14 @@ import {
   useLang,
   useT,
 } from "../i18n";
+import { getCurrentUser } from "../lib/auth/session.server";
+import {
+  type BasicField,
+  type BasicInfo,
+  NAME_MAX,
+  URL_MAX,
+  validateBasicInfo,
+} from "../profile/basic-info";
 import {
   APPLY_THRESHOLD,
   canApply,
@@ -27,11 +37,10 @@ import {
   DEMO_FILLED,
   DEMO_INTENTION,
   DEMO_PROFILE,
-  missingSections,
-  RESUME_SECTIONS,
 } from "../profile/demo";
 import {
   type Field,
+  type FieldError,
   JOB_SEEKING_STATUSES,
   type JobIntention,
   ROLE_MAX,
@@ -44,9 +53,28 @@ export function meta({ params }: Route.MetaArgs) {
   return [{ title: translate(lang, "myProfile") }];
 }
 
+/** Private page (F04): guests go to login and come back here afterwards. */
+export async function loader({ request, params }: Route.LoaderArgs) {
+  const user = await getCurrentUser(request, env);
+  if (!user) {
+    const { pathname } = new URL(request.url);
+    throw redirect(
+      `/${params.lang}/login?redirectTo=${encodeURIComponent(pathname)}`,
+    );
+  }
+  return { email: user.email };
+}
+
 type IntentionForm = Omit<JobIntention, "jobSeekingStatus"> & {
   jobSeekingStatus: JobIntention["jobSeekingStatus"] | "";
 };
+
+const TABS = [
+  "basicInformation",
+  "jobIntention",
+  "myApplications",
+] as const satisfies readonly MessageKey[];
+type Tab = (typeof TABS)[number];
 
 const CITY_OPTIONS = Object.entries(REGIONS).map(([province, cities]) => ({
   value: province,
@@ -54,13 +82,8 @@ const CITY_OPTIONS = Object.entries(REGIONS).map(([province, cities]) => ({
   children: cities.map((city) => ({ value: city, label: city })),
 }));
 
-const card = "rounded-[14px] border border-solid border-[#DDE3EA] bg-white p-5";
-const tag =
-  "inline-block rounded-full px-[9px] py-[3px] text-xs font-semibold whitespace-nowrap";
-const tagOn = `${tag} bg-[#E6F1F0] text-[#0B4F4A]`;
-const tagOff = `${tag} bg-[#F1E7DC] text-[#7C2D12]`;
-const label = "text-[13px] font-semibold";
-const muted = "text-[#4B5A6B]";
+const label = "text-sm font-medium";
+const errorClass = "text-[13px] text-[#B42318]";
 
 const initials = (name: string) =>
   name
@@ -70,297 +93,423 @@ const initials = (name: string) =>
     .slice(0, 2)
     .toUpperCase();
 
+/** Field errors are shown once the user has left any of the given fields. */
+function useTouched<F extends string>() {
+  const [touched, setTouched] = useState<Set<F>>(new Set());
+  const touch = (field: F) =>
+    setTouched((s) => (s.has(field) ? s : new Set(s).add(field)));
+  const reset = () => setTouched(new Set());
+  const firstError = (
+    errors: Partial<Record<F, FieldError>>,
+    ...fields: F[]
+  ): FieldError | undefined =>
+    fields.some((f) => touched.has(f))
+      ? fields.map((f) => errors[f]).find(Boolean)
+      : undefined;
+  return { touch, reset, firstError };
+}
+
 // shortcut: page state over demo data; nothing is saved to a server until
-// the résumé and job-intention APIs exist (W3).
+// the profile and job-intention APIs exist (W3).
 export default function Profile() {
+  const { email } = useLoaderData<typeof loader>();
   const t = useT();
   const lang = useLang();
+  const [tab, setTab] = useState<Tab>("basicInformation");
   const [filled, setFilled] = useState(
     () => new Set<CompletenessPart>(DEMO_FILLED),
   );
+
+  const [basic, setBasic] = useState<BasicInfo>(DEMO_PROFILE);
+  const [savedBasic, setSavedBasic] = useState<BasicInfo>(DEMO_PROFILE);
+  const basicTouched = useTouched<BasicField>();
+  const basicCheck = validateBasicInfo(basic);
+  const basicErrors = basicCheck.ok ? {} : basicCheck.errors;
+  const basicChanged =
+    basicCheck.ok &&
+    JSON.stringify(basicCheck.value) !== JSON.stringify(savedBasic);
+
   const [intention, setIntention] = useState<IntentionForm>(DEMO_INTENTION);
-  const [saved, setSaved] = useState<IntentionForm>(DEMO_INTENTION);
-  const [touched, setTouched] = useState<Set<Field>>(new Set());
+  const [savedIntention, setSavedIntention] =
+    useState<IntentionForm>(DEMO_INTENTION);
+  const intentionTouched = useTouched<Field>();
+  const intentionCheck = validateJobIntention(intention);
+  const intentionErrors = intentionCheck.ok ? {} : intentionCheck.errors;
 
   const percent = completeness(filled);
   const applyOk = canApply(percent);
-  const missing = missingSections(filled);
+  const markFilled = (part: CompletenessPart) =>
+    setFilled((f) => new Set(f).add(part));
 
-  const check = validateJobIntention(intention);
-  const errors = check.ok ? {} : check.errors;
-  const update = (patch: Partial<IntentionForm>) =>
-    setIntention((v) => ({ ...v, ...patch }));
-  const touch = (field: Field) =>
-    setTouched((s) => (s.has(field) ? s : new Set(s).add(field)));
-  /** First error among `fields`, shown once the user has left any of them. */
-  const errorText = (...fields: Field[]) => {
-    if (!fields.some((f) => touched.has(f))) return undefined;
-    const error = fields.map((f) => errors[f]).find(Boolean);
-    return error ? t(error.key, error.vars) : undefined;
+  /** Error text, linked to its field by id so screen readers announce it. */
+  const say = (id: string, error?: FieldError) =>
+    error && (
+      <span id={`${id}-error`} className={errorClass}>
+        {t(error.key, error.vars)}
+      </span>
+    );
+  const invalid = (id: string, error?: FieldError) =>
+    error
+      ? {
+          status: "error" as const,
+          "aria-invalid": true,
+          "aria-describedby": `${id}-error`,
+        }
+      : {};
+
+  const onTabKey = (event: KeyboardEvent) => {
+    const step =
+      event.key === "ArrowDown" ? 1 : event.key === "ArrowUp" ? -1 : 0;
+    if (!step) return;
+    event.preventDefault();
+    const next = TABS[(TABS.indexOf(tab) + step + TABS.length) % TABS.length];
+    setTab(next);
+    document.getElementById(`tab-${next}`)?.focus();
   };
 
-  const roleError = errorText("expectedRole");
-  const salaryError = errorText("salaryMin", "salaryMax");
-  const cityError = errorText("province", "city");
-  const statusError = errorText("jobSeekingStatus");
-  const hint = (text?: string) =>
-    text && <span className="text-[13px] text-[#B42318]">{text}</span>;
-
-  const rupiah = new Intl.NumberFormat(LOCALES[lang]);
-  const salaryInput = (field: "salaryMin" | "salaryMax", aria: MessageKey) => (
-    <InputNumber<number>
-      id={`profile-${field}`}
-      aria-label={t(aria)}
-      prefix="Rp"
-      min={0}
-      step={500_000}
-      className="flex-1"
-      status={salaryError ? "error" : undefined}
-      value={intention[field]}
-      formatter={(v) => (v === undefined ? "" : rupiah.format(v))}
-      parser={(v) => Number(v?.replace(/\D/g, "") || 0)}
-      onChange={(v) => update({ [field]: v ?? null })}
-      onBlur={() => touch(field)}
+  const cityPicker = (
+    id: string,
+    value: { province: string; city: string },
+    onChange: (v: { province: string; city: string }) => void,
+    onBlur: () => void,
+    error?: FieldError,
+  ) => (
+    <Cascader
+      id={id}
+      showSearch
+      options={CITY_OPTIONS}
+      {...invalid(id, error)}
+      placeholder={t("selectCity")}
+      value={value.province ? [value.province, value.city] : undefined}
+      displayRender={(labels) => [...labels].reverse().join(", ")}
+      onChange={(path) =>
+        onChange({
+          province: String(path?.[0] ?? ""),
+          city: String(path?.[1] ?? ""),
+        })
+      }
+      onBlur={onBlur}
     />
   );
 
-  const gate = (
-    <>
-      {t("yourResumeIsPercentComplete", { percent })}.{" "}
-      {t("completeAtLeastPercentOfYourResumeToApply", {
-        percent: APPLY_THRESHOLD,
-      })}
-      .
-    </>
-  );
+  const basicPanel = () => {
+    const update = (patch: Partial<BasicInfo>) =>
+      setBasic((v) => ({ ...v, ...patch }));
+    const { touch, firstError } = basicTouched;
+    const nameError = firstError(basicErrors, "fullName");
+    const whatsappError = firstError(basicErrors, "whatsapp");
+    const cityError = firstError(basicErrors, "province", "city");
+    const linkedinError = firstError(basicErrors, "linkedinUrl");
+    return (
+      <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-1.5">
+          <label className={label} htmlFor="basic-fullName">
+            {t("fullName")}
+          </label>
+          <Input
+            id="basic-fullName"
+            variant="filled"
+            maxLength={NAME_MAX}
+            {...invalid("basic-fullName", nameError)}
+            value={basic.fullName}
+            onChange={(e) => update({ fullName: e.target.value })}
+            onBlur={() => touch("fullName")}
+          />
+          {say("basic-fullName", nameError)}
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className={label} htmlFor="basic-email">
+            {t("emailAddress")}
+          </label>
+          <Input
+            id="basic-email"
+            variant="filled"
+            readOnly
+            value={email ?? ""}
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className={label} htmlFor="basic-whatsapp">
+            {t("whatsappNumber")}
+          </label>
+          <Input
+            id="basic-whatsapp"
+            variant="filled"
+            inputMode="tel"
+            autoComplete="tel"
+            {...invalid("basic-whatsapp", whatsappError)}
+            value={basic.whatsapp}
+            onChange={(e) => update({ whatsapp: e.target.value })}
+            onBlur={() => touch("whatsapp")}
+          />
+          {say("basic-whatsapp", whatsappError)}
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className={label} htmlFor="basic-location">
+            {t("location")}
+          </label>
+          {cityPicker(
+            "basic-location",
+            basic,
+            (v) => update(v),
+            () => touch("city"),
+            cityError,
+          )}
+          {say("basic-location", cityError)}
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className={label} htmlFor="basic-linkedinUrl">
+            {t("linkedinUrl")}
+          </label>
+          <Input
+            id="basic-linkedinUrl"
+            variant="filled"
+            type="url"
+            maxLength={URL_MAX}
+            placeholder="https://www.linkedin.com/in/…"
+            {...invalid("basic-linkedinUrl", linkedinError)}
+            value={basic.linkedinUrl}
+            onChange={(e) => update({ linkedinUrl: e.target.value })}
+            onBlur={() => touch("linkedinUrl")}
+          />
+          {say("basic-linkedinUrl", linkedinError)}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="primary"
+            disabled={!basicChanged}
+            onClick={() => {
+              if (!basicCheck.ok) return;
+              setSavedBasic(basicCheck.value);
+              setBasic(basicCheck.value);
+              basicTouched.reset();
+              markFilled("basicInformation");
+            }}
+          >
+            {t("save")}
+          </Button>
+          <Button
+            onClick={() => {
+              setBasic(savedBasic);
+              basicTouched.reset();
+            }}
+          >
+            {t("cancel")}
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  const intentionPanel = () => {
+    const update = (patch: Partial<IntentionForm>) =>
+      setIntention((v) => ({ ...v, ...patch }));
+    const { touch, firstError } = intentionTouched;
+    const roleError = firstError(intentionErrors, "expectedRole");
+    const salaryError = firstError(intentionErrors, "salaryMin", "salaryMax");
+    const cityError = firstError(intentionErrors, "province", "city");
+    const statusError = firstError(intentionErrors, "jobSeekingStatus");
+    const rupiah = new Intl.NumberFormat(LOCALES[lang]);
+    const salaryInput = (
+      field: "salaryMin" | "salaryMax",
+      aria: MessageKey,
+    ) => (
+      <InputNumber<number>
+        id={`profile-${field}`}
+        aria-label={t(aria)}
+        prefix="Rp"
+        min={0}
+        step={500_000}
+        className="flex-1"
+        {...invalid("profile-salary", salaryError)}
+        value={intention[field]}
+        formatter={(v) => (v === undefined ? "" : rupiah.format(v))}
+        parser={(v) => Number(v?.replace(/\D/g, "") || 0)}
+        onChange={(v) => update({ [field]: v ?? null })}
+        onBlur={() => touch(field)}
+      />
+    );
+    return (
+      <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-1.5">
+          <label className={label} htmlFor="profile-expectedRole">
+            {t("expectedRole")}
+          </label>
+          <Input
+            id="profile-expectedRole"
+            maxLength={ROLE_MAX}
+            {...invalid("profile-expectedRole", roleError)}
+            value={intention.expectedRole}
+            onChange={(e) => update({ expectedRole: e.target.value })}
+            onBlur={() => touch("expectedRole")}
+          />
+          {say("profile-expectedRole", roleError)}
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className={label} htmlFor="profile-salaryMin">
+            {t("expectedSalary")} ({t("perMonth").toLowerCase()})
+          </label>
+          <Space.Compact block>
+            {salaryInput("salaryMin", "minimumSalary")}
+            {salaryInput("salaryMax", "maximumSalary")}
+          </Space.Compact>
+          {say("profile-salary", salaryError)}
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className={label} htmlFor="profile-city">
+            {t("preferredCity")}
+          </label>
+          {cityPicker(
+            "profile-city",
+            intention,
+            (v) => update(v),
+            () => touch("city"),
+            cityError,
+          )}
+          {say("profile-city", cityError)}
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className={label} htmlFor="profile-jobSeekingStatus">
+            {t("jobSeekingStatus")}
+          </label>
+          <Select
+            id="profile-jobSeekingStatus"
+            {...invalid("profile-jobSeekingStatus", statusError)}
+            value={intention.jobSeekingStatus || undefined}
+            options={JOB_SEEKING_STATUSES.map((s) => ({
+              value: s,
+              label: t(s),
+            }))}
+            onChange={(jobSeekingStatus) => update({ jobSeekingStatus })}
+            onBlur={() => touch("jobSeekingStatus")}
+          />
+          {say("profile-jobSeekingStatus", statusError)}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="primary"
+            disabled={!intentionCheck.ok}
+            onClick={() => {
+              setSavedIntention(intention);
+              markFilled("jobIntention");
+            }}
+          >
+            {t("saveChanges")}
+          </Button>
+          <Button
+            onClick={() => {
+              setIntention(savedIntention);
+              intentionTouched.reset();
+            }}
+          >
+            {t("cancel")}
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  const panels: Record<Tab, () => React.ReactNode> = {
+    basicInformation: basicPanel,
+    jobIntention: intentionPanel,
+    myApplications: () => (
+      // shortcut: empty until the applications API (Rafi, W3) exists.
+      <p className="m-0 text-[#6B7280]">{t("noApplicationsYet")}</p>
+    ),
+  };
 
   return (
     <ConfigProvider
       theme={{
-        token: {
-          colorPrimary: "#0F766E",
-          colorText: "#14213D",
-          colorBorder: "#6B7A8C",
-          borderRadius: 10,
-          controlHeight: 44,
-        },
+        token: { colorPrimary: "#1D4ED8", borderRadius: 8, controlHeight: 44 },
       }}
     >
-      <div className="min-h-screen bg-[#F4F6F8] text-[#14213D]">
-        <main className="mx-auto flex max-w-[1140px] flex-wrap items-start gap-5 px-5 py-6">
-          <aside className="flex min-w-0 flex-[1_1_320px] flex-col gap-4">
-            <section className={`${card} flex flex-col gap-3`}>
-              <div className="flex items-center gap-3.5">
-                <div
-                  aria-hidden="true"
-                  className="flex h-16 w-16 flex-none items-center justify-center rounded-full bg-[#E6F1F0] text-[22px] font-bold text-[#0B4F4A]"
-                >
-                  {initials(DEMO_PROFILE.name)}
-                </div>
-                <div className="min-w-0">
-                  <h1 className="m-0 text-xl font-bold">{DEMO_PROFILE.name}</h1>
-                  <div className={`text-sm ${muted}`}>
-                    {DEMO_PROFILE.headline}
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {saved.jobSeekingStatus && (
-                  <span className={tagOn}>{t(saved.jobSeekingStatus)}</span>
-                )}
-                <span className={`${tag} bg-[#EEF2F7] text-[#28364A]`}>
-                  {t("freshGraduate")}
-                </span>
-              </div>
-              <dl className="m-0 flex flex-col gap-1 text-sm">
-                {(
-                  [
-                    ["phoneNumber", DEMO_PROFILE.phone],
-                    ["emailAddress", DEMO_PROFILE.email],
-                    ["currentCity", DEMO_PROFILE.city],
-                  ] as const
-                ).map(([key, value]) => (
-                  <div key={key} className="[overflow-wrap:anywhere]">
-                    <dt className={`inline ${muted}`}>{t(key)}: </dt>
-                    <dd className="m-0 inline">{value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </section>
+      <main className="mx-auto flex max-w-[1180px] flex-col gap-6 px-5 py-8 text-[#1F2937]">
+        <section className="rounded-xl border border-solid border-[#E5E7EB] bg-white p-5">
+          <div className="flex items-center gap-4 rounded-lg bg-[#FEF1F0] p-5">
+            <div
+              aria-hidden="true"
+              className="flex h-14 w-14 flex-none items-center justify-center rounded-full bg-[#E8392B] text-lg font-bold text-white"
+            >
+              {initials(savedBasic.fullName)}
+            </div>
+            <h1 className="m-0 text-lg font-bold">{savedBasic.fullName}</h1>
+          </div>
+        </section>
 
-            <section className={`${card} flex flex-col gap-2.5`}>
-              <h2 className="m-0 text-base font-bold">
+        <div className="grid overflow-hidden rounded-xl border border-solid border-[#E5E7EB] bg-white md:grid-cols-[minmax(260px,1fr)_2fr]">
+          <aside className="border-0 border-[#E5E7EB] md:border-r md:border-solid">
+            <div
+              role="tablist"
+              aria-orientation="vertical"
+              aria-label={t("myProfile")}
+              onKeyDown={onTabKey}
+            >
+              {TABS.map((id) => {
+                const selected = tab === id;
+                return (
+                  <button
+                    key={id}
+                    id={`tab-${id}`}
+                    type="button"
+                    role="tab"
+                    aria-selected={selected}
+                    aria-controls={`panel-${id}`}
+                    tabIndex={selected ? 0 : -1}
+                    onClick={() => setTab(id)}
+                    className={`block min-h-12 w-full cursor-pointer border-0 border-b border-solid border-[#E5E7EB] px-5 py-3.5 text-left text-base ${
+                      selected
+                        ? "bg-[#DBEAFE] font-semibold text-[#1D4ED8]"
+                        : "bg-[#F7F7F8] text-[#1F2937]"
+                    }`}
+                  >
+                    {t(id)}
+                  </button>
+                );
+              })}
+            </div>
+
+            <section className="flex flex-col gap-3 p-6">
+              <h2 className="m-0 border-0 border-l-4 border-solid border-[#1D4ED8] pl-2 text-xl font-bold text-[#1D4ED8]">
                 {t("resumeCompleteness")}
               </h2>
-              <div className="text-[28px] font-bold">{percent}%</div>
               <div
                 role="progressbar"
                 aria-label={t("resumeCompleteness")}
                 aria-valuemin={0}
                 aria-valuemax={100}
                 aria-valuenow={percent}
-                className="relative h-3 overflow-hidden rounded-full bg-[#E3E8EE]"
+                className="h-2.5 overflow-hidden rounded-full bg-[#F1F1F3]"
               >
                 <div
-                  className={`h-full ${applyOk ? "bg-[#166534]" : "bg-[#B45309]"}`}
+                  className={`h-full ${applyOk ? "bg-[#166534]" : "bg-[#E8392B]"}`}
                   style={{ width: `${percent}%` }}
                 />
-                <div
-                  aria-hidden="true"
-                  className="absolute top-0 h-full w-0.5 bg-[#14213D]"
-                  style={{ left: `${APPLY_THRESHOLD}%` }}
-                />
               </div>
-              <div
-                className={`font-semibold ${applyOk ? "text-[#14532D]" : "text-[#7C2D12]"}`}
-              >
-                {applyOk
-                  ? t("yourResumeIsPercentComplete", { percent })
-                  : t("completeAtLeastPercentOfYourResumeToApply", {
-                      percent: APPLY_THRESHOLD,
-                    })}
-              </div>
-              {missing.length > 0 && (
-                <div className={`text-[13px] ${muted}`}>
-                  {t("missingSections")}:{" "}
-                  {missing.map((id) => t(id)).join(", ")}
+              <div className="text-[#6B7280]">{percent}%</div>
+              {!applyOk && (
+                <div className="rounded-lg border border-solid border-[#E8392B] bg-[#FEF1F0] p-4 text-[#C2281B]">
+                  {t("completeAtLeastPercentOfYourResumeToApply", {
+                    percent: APPLY_THRESHOLD,
+                  })}
                 </div>
               )}
             </section>
           </aside>
 
-          <div className="flex min-w-0 flex-[999_1_560px] flex-col gap-4">
-            {!applyOk && (
-              <div
-                role="status"
-                className={`${card} border-[#B45309] bg-[#FFF7ED] font-semibold text-[#7C2D12]`}
-              >
-                {gate}
-              </div>
-            )}
-
-            <section
-              className={`${card} flex flex-col gap-3.5`}
-              aria-labelledby="job-intention-title"
-            >
-              <h2 id="job-intention-title" className="m-0 text-lg font-bold">
-                {t("jobIntention")}
-              </h2>
-              <div className="grid gap-3.5 md:grid-cols-3">
-                <div className="flex min-w-0 flex-col gap-1">
-                  <label className={label} htmlFor="profile-expectedRole">
-                    {t("expectedRole")}
-                  </label>
-                  <Input
-                    id="profile-expectedRole"
-                    maxLength={ROLE_MAX}
-                    status={roleError ? "error" : undefined}
-                    value={intention.expectedRole}
-                    onChange={(e) => update({ expectedRole: e.target.value })}
-                    onBlur={() => touch("expectedRole")}
-                  />
-                  {hint(roleError)}
-                </div>
-                <div className="flex min-w-0 flex-col gap-1">
-                  <label className={label} htmlFor="profile-salaryMin">
-                    {t("expectedSalary")} ({t("perMonth").toLowerCase()})
-                  </label>
-                  <Space.Compact block>
-                    {salaryInput("salaryMin", "minimumSalary")}
-                    {salaryInput("salaryMax", "maximumSalary")}
-                  </Space.Compact>
-                  {hint(salaryError)}
-                </div>
-                <div className="flex min-w-0 flex-col gap-1">
-                  <label className={label} htmlFor="profile-city">
-                    {t("preferredCity")}
-                  </label>
-                  <Cascader
-                    id="profile-city"
-                    showSearch
-                    options={CITY_OPTIONS}
-                    status={cityError ? "error" : undefined}
-                    placeholder={t("selectCity")}
-                    value={
-                      intention.province
-                        ? [intention.province, intention.city]
-                        : undefined
-                    }
-                    displayRender={(labels) => [...labels].reverse().join(", ")}
-                    onChange={(path) =>
-                      update({
-                        province: String(path?.[0] ?? ""),
-                        city: String(path?.[1] ?? ""),
-                      })
-                    }
-                    onBlur={() => touch("city")}
-                  />
-                  {hint(cityError)}
-                </div>
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className={label} htmlFor="profile-jobSeekingStatus">
-                  {t("jobSeekingStatus")}
-                </label>
-                <Select
-                  id="profile-jobSeekingStatus"
-                  status={statusError ? "error" : undefined}
-                  value={intention.jobSeekingStatus || undefined}
-                  options={JOB_SEEKING_STATUSES.map((s) => ({
-                    value: s,
-                    label: t(s),
-                  }))}
-                  onChange={(jobSeekingStatus) => update({ jobSeekingStatus })}
-                  onBlur={() => touch("jobSeekingStatus")}
-                />
-                {hint(statusError)}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  type="primary"
-                  disabled={!check.ok}
-                  onClick={() => {
-                    setSaved(intention);
-                    setFilled((f) => new Set(f).add("jobIntention"));
-                  }}
-                >
-                  {t("saveChanges")}
-                </Button>
-                <Button
-                  onClick={() => {
-                    setIntention(saved);
-                    setTouched(new Set());
-                  }}
-                >
-                  {t("cancel")}
-                </Button>
-              </div>
-            </section>
-
-            <section
-              className={`${card} flex flex-col gap-1`}
-              aria-labelledby="online-resume-title"
-            >
-              <h2 id="online-resume-title" className="m-0 text-lg font-bold">
-                {t("onlineResume")}
-              </h2>
-              <ul className="m-0 list-none p-0">
-                {RESUME_SECTIONS.map((id) => (
-                  <li
-                    key={id}
-                    className="flex min-h-11 items-center justify-between gap-3 border-0 border-t border-solid border-[#E3E8EE] py-2"
-                  >
-                    <span className="font-semibold">{t(id)}</span>
-                    <span className={filled.has(id) ? tagOn : tagOff}>
-                      {filled.has(id) ? t("filled") : t("notFilled")}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          </div>
-        </main>
-      </div>
+          <section
+            id={`panel-${tab}`}
+            role="tabpanel"
+            aria-labelledby={`tab-${tab}`}
+            className="p-6"
+          >
+            <h2 className="mt-0 mb-6 border-0 border-b border-solid border-[#E5E7EB] pb-4 text-xl font-bold">
+              {t(tab)}
+            </h2>
+            {panels[tab]()}
+          </section>
+        </div>
+      </main>
     </ConfigProvider>
   );
 }
