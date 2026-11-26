@@ -524,6 +524,10 @@ export const en = {
   email: "Email",
   loginIsNotAvailableYet: "Login is not available yet.",
   or: "or",
+  useMinToMaxCharacters: "Use {min} to {max} characters",
+  useOnlyLettersNumbersSpacesAnd: "Use only letters, numbers, spaces and - / &",
+  minimumSalaryCannotBeHigherThanMaximumSalary:
+    "Minimum salary cannot be higher than maximum salary",
 } as const;
 
 export type MessageKey = keyof typeof en;
@@ -1053,4 +1057,9 @@ export const id: Record<MessageKey, string> = {
   email: "Email",
   loginIsNotAvailableYet: "Fitur masuk belum tersedia.",
   or: "atau",
+  useMinToMaxCharacters: "Gunakan {min} sampai {max} karakter",
+  useOnlyLettersNumbersSpacesAnd:
+    "Gunakan hanya huruf, angka, spasi, dan - / &",
+  minimumSalaryCannotBeHigherThanMaximumSalary:
+    "Gaji minimum tidak boleh lebih tinggi dari gaji maksimum",
 };

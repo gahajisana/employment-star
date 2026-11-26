@@ -5,24 +5,6 @@ import { describe, expect, it, vi } from "vitest";
 
 import Login from "./login";
 
-Object.defineProperty(window, "matchMedia", {
-  writable: true,
-  value: (media: string) => ({
-    matches: false,
-    media,
-    addEventListener: () => {},
-    removeEventListener: () => {},
-    addListener: () => {},
-    removeListener: () => {},
-  }),
-});
-
-globalThis.ResizeObserver = class ResizeObserver {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-};
-
 describe("login page", () => {
   it("keeps phone disabled, switches to email, and clears verification code", async () => {
     const Stub = createRoutesStub([{ path: "/:lang/login", Component: Login }]);
