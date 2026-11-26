@@ -528,6 +528,35 @@ export const en = {
   useOnlyLettersNumbersSpacesAnd: "Use only letters, numbers, spaces and - / &",
   minimumSalaryCannotBeHigherThanMaximumSalary:
     "Minimum salary cannot be higher than maximum salary",
+  findTheJobThatFitsYourNextStep: "Find the job that fits your next step",
+  hotJobs: "Hot jobs",
+  featuredEmployers: "Featured employers",
+  cvEditing: "CV editing",
+  digitalGrowthRecord: "Digital growth record",
+  recommendedFromYourResume: "Recommended from your résumé",
+  editYourCvToShowcaseYourPotential: "Edit your CV to showcase your potential",
+  cvInterviewAndTechnicalCourses: "CV, interview and technical courses",
+  trackEveryStepYouTake: "Track every step you take",
+  workType: "Work type",
+  hybrid: "Hybrid",
+  jobLanguage: "Job language",
+  countJobsFound: "{count} jobs found",
+  youHaveSeenAllJobs: "You have seen all jobs",
+  youHaveSeenAllEmployers: "You have seen all employers",
+  noJobsMatchYourFiltersTryRemovingSome:
+    "No jobs match your filters. Try removing some.",
+  noCompaniesMatchYourSearch: "No companies match your search.",
+  salaryValuesMustBeZeroOrMore: "Salary values must be zero or more",
+  fromAmount: "From {amount}",
+  upToAmount: "Up to {amount}",
+  postedCountDaysAgo: "Posted {count} days ago",
+  frontEndPreview: "Front-end preview",
+  theseAreSampleListingsApplicationsAndLiveCompanyDataWillBeConnectedLater:
+    "These are sample listings. Applications and live company data will be connected later.",
+  thisFeatureWillBeAvailableInALaterUpdate:
+    "This feature will be available in a later update.",
+  countJobFound: "{count} job found",
+  searchByJobTitleSkillsOrCompany: "Search by job title, skills or company",
 } as const;
 
 export type MessageKey = keyof typeof en;
@@ -1062,4 +1091,37 @@ export const id: Record<MessageKey, string> = {
     "Gunakan hanya huruf, angka, spasi, dan - / &",
   minimumSalaryCannotBeHigherThanMaximumSalary:
     "Gaji minimum tidak boleh lebih tinggi dari gaji maksimum",
+  findTheJobThatFitsYourNextStep:
+    "Temukan pekerjaan yang tepat untuk langkah Anda selanjutnya",
+  hotJobs: "Lowongan populer",
+  featuredEmployers: "Perusahaan unggulan",
+  cvEditing: "Edit CV",
+  digitalGrowthRecord: "Catatan perkembangan digital",
+  recommendedFromYourResume: "Rekomendasi berdasarkan CV Anda",
+  editYourCvToShowcaseYourPotential: "Edit CV untuk menampilkan potensi Anda",
+  cvInterviewAndTechnicalCourses:
+    "Kursus CV, wawancara, dan keterampilan teknis",
+  trackEveryStepYouTake: "Pantau setiap langkah Anda",
+  workType: "Model kerja",
+  hybrid: "Hibrida",
+  jobLanguage: "Bahasa lowongan",
+  countJobsFound: "{count} lowongan ditemukan",
+  youHaveSeenAllJobs: "Semua lowongan sudah ditampilkan",
+  youHaveSeenAllEmployers: "Semua perusahaan sudah ditampilkan",
+  noJobsMatchYourFiltersTryRemovingSome:
+    "Tidak ada lowongan yang sesuai dengan filter Anda. Coba kurangi filter.",
+  noCompaniesMatchYourSearch:
+    "Tidak ada perusahaan yang sesuai dengan pencarian Anda.",
+  salaryValuesMustBeZeroOrMore: "Gaji harus bernilai nol atau lebih",
+  fromAmount: "Mulai dari {amount}",
+  upToAmount: "Hingga {amount}",
+  postedCountDaysAgo: "Diposting {count} hari lalu",
+  frontEndPreview: "Pratinjau antarmuka",
+  theseAreSampleListingsApplicationsAndLiveCompanyDataWillBeConnectedLater:
+    "Ini adalah contoh lowongan. Fitur lamaran dan data perusahaan akan dihubungkan nanti.",
+  thisFeatureWillBeAvailableInALaterUpdate:
+    "Fitur ini akan tersedia pada pembaruan berikutnya.",
+  countJobFound: "{count} lowongan ditemukan",
+  searchByJobTitleSkillsOrCompany:
+    "Cari berdasarkan jabatan, keahlian, atau perusahaan",
 };
