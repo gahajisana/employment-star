@@ -1,0 +1,14 @@
+# Copy to .dev.vars for local development with Vite / Wrangler.
+SESSION_SECRET=dev-only-session-secret-change-in-production
+EMAIL_PROVIDER=console
+
+# Uncomment to test real SMTP locally:
+# EMAIL_PROVIDER=smtp
+# SMTP_HOST=smtp.example.com
+# SMTP_PORT=587
+# SMTP_SECURE=false
+# SMTP_AUTH_TYPE=plain
+# SMTP_USER=your-smtp-username
+# SMTP_PASS=your-smtp-password
+# EMAIL_FROM=noreply@example.com
+# EMAIL_FROM_NAME=Employment Star
