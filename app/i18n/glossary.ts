@@ -528,6 +528,10 @@ export const en = {
   useOnlyLettersNumbersSpacesAnd: "Use only letters, numbers, spaces and - / &",
   minimumSalaryCannotBeHigherThanMaximumSalary:
     "Minimum salary cannot be higher than maximum salary",
+  whatsappNumber: "WhatsApp number",
+  linkedinUrl: "LinkedIn URL",
+  pleaseEnterAValidUrl: "Please enter a valid URL",
+  useOnlyLettersSpacesAnd: "Use only letters, spaces and . ' -",
   findTheJobThatFitsYourNextStep: "Find the job that fits your next step",
   hotJobs: "Hot jobs",
   featuredEmployers: "Featured employers",
@@ -1091,6 +1095,10 @@ export const id: Record<MessageKey, string> = {
     "Gunakan hanya huruf, angka, spasi, dan - / &",
   minimumSalaryCannotBeHigherThanMaximumSalary:
     "Gaji minimum tidak boleh lebih tinggi dari gaji maksimum",
+  whatsappNumber: "Nomor WhatsApp",
+  linkedinUrl: "URL LinkedIn",
+  pleaseEnterAValidUrl: "Masukkan URL yang valid",
+  useOnlyLettersSpacesAnd: "Gunakan hanya huruf, spasi, dan . ' -",
   findTheJobThatFitsYourNextStep:
     "Temukan pekerjaan yang tepat untuk langkah Anda selanjutnya",
   hotJobs: "Lowongan populer",

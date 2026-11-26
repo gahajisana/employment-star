@@ -1,6 +1,7 @@
 // shortcut: fictional demo profile, shown until the résumé API exists (W3).
 // Not real data: never seed it into the database.
 import type { MessageKey } from "../i18n";
+import type { BasicInfo } from "./basic-info";
 import type { JobIntention } from "./job-intention";
 
 /** The 11 online résumé sections (Requirement Report, P08), as glossary keys. */
@@ -49,12 +50,6 @@ export function completeness(filled: ReadonlySet<CompletenessPart>): number {
 
 export const canApply = (percent: number) => percent >= APPLY_THRESHOLD;
 
-export function missingSections(
-  filled: ReadonlySet<CompletenessPart>,
-): ResumeSectionId[] {
-  return RESUME_SECTIONS.filter((id) => !filled.has(id));
-}
-
 export const DEMO_FILLED: CompletenessPart[] = [
   "basicInformation",
   "jobIntention",
@@ -63,12 +58,12 @@ export const DEMO_FILLED: CompletenessPart[] = [
   "selfEvaluation",
 ];
 
-export const DEMO_PROFILE = {
-  name: "Nama",
-  headline: "Mahasiswa tingkat akhir Teknik Informatika, Jakarta",
-  phone: "0812-3456-7890",
-  email: "nama@example.com",
-  city: "Jakarta Selatan, DKI Jakarta",
+export const DEMO_PROFILE: BasicInfo = {
+  fullName: "Nama",
+  whatsapp: "+6281234567890",
+  province: "DKI Jakarta",
+  city: "Jakarta Selatan",
+  linkedinUrl: "",
 };
 
 export const DEMO_INTENTION: JobIntention = {
