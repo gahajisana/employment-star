@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@ant-design/cssinjs": "2.1.2",
+    "@ant-design/icons": "^6.3.4",
     "antd": "^6.7.1",
     "drizzle-orm": "^0.45.4",
     "isbot": "^5.1.36",
