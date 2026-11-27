@@ -1,3 +1,6 @@
+/* antd sits between Tailwind base and utilities (see root.tsx). */
+@layer theme, base, antd, components, utilities;
+
 @import "tailwindcss" source(".");
 
 @theme {
