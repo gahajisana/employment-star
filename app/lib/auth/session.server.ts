@@ -100,8 +100,12 @@ export async function getCurrentUser(
   request: Request,
   env: SessionEnv,
 ): Promise<UserRecord | null> {
+  const cookieHeader = request.headers.get("Cookie");
+  // Anonymous prerender requests do not need runtime session bindings.
+  if (!cookieHeader) return null;
+
   const { db, storage } = getStorageForRequest(request, env);
-  const session = await storage.getSession(request.headers.get("Cookie"));
+  const session = await storage.getSession(cookieHeader);
   const userId = session.get("userId");
   if (!userId) return null;
 
