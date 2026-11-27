@@ -1,3 +1,4 @@
+import { StyleProvider } from "@ant-design/cssinjs";
 import {
   isRouteErrorResponse,
   Links,
@@ -28,6 +29,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang={useLang()}>
       <head>
+        {/* Must be the first stylesheet: fixes the cascade-layer order before
+            antd (which prepends its <style> tags) or Tailwind declare layers.
+            The rc attributes keep antd's client-side inserts after it. */}
+        <style data-rc-order="prependQueue" data-rc-priority="-1000">
+          {"@layer theme, base, antd, components, utilities;"}
+        </style>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
@@ -43,7 +50,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  // antd styles go in `@layer antd` (ordered in app.css) so Tailwind
+  // utilities win over antd's global resets such as its blue `a` colour.
+  return (
+    <StyleProvider layer>
+      <Outlet />
+    </StyleProvider>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

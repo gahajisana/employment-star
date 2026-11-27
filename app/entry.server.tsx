@@ -19,7 +19,7 @@ export default async function handleRequest(
 
   const cache = createCache();
   const body = await renderToReadableStream(
-    <StyleProvider cache={cache}>
+    <StyleProvider cache={cache} layer>
       <ServerRouter context={routerContext} url={request.url} />
     </StyleProvider>,
     {

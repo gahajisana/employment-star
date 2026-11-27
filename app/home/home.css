@@ -9,9 +9,23 @@
 }
 
 .home-keyword-bar {
-  padding: 10px;
-  border-radius: 10px;
+  padding: 6px 6px 6px 10px;
+  border: 1px solid #d9dce1;
+  border-radius: 999px;
   background: var(--ant-color-bg-container);
+  box-shadow: 0 10px 30px -14px rgba(31, 41, 55, 0.3);
+}
+
+.home-keyword-bar:focus-within {
+  border-color: #1f2937;
+}
+
+/* Pill search button and filters, matching the rest of the site. */
+.home-page .home-keyword-bar .ant-btn {
+  height: 44px;
+  padding-inline: 24px;
+  border-radius: 999px;
+  font-weight: 700;
 }
 
 .home-keyword-input {
@@ -25,11 +39,12 @@
 
 .home-page .home-filter-trigger {
   justify-content: space-between;
-  padding-inline: 10px;
+  padding-inline: 14px;
+  border-radius: 999px;
 }
 
 .home-page .home-filter-chevron {
-  color: var(--ant-color-error);
+  color: var(--ant-color-text-secondary);
 }
 
 .home-page .home-clear {
@@ -127,4 +142,134 @@
   .home-page .home-section-body {
     padding: 16px;
   }
+}
+
+.home-page .home-filter.ant-select,
+.home-page .home-filter .ant-select-selector {
+  border-radius: 999px;
+}
+
+/* ------------------------------------------------------------------
+   Site look (layout/header/landing style): visual overrides only.
+   This file is unlayered, so it wins over antd's `@layer antd`.
+   ------------------------------------------------------------------ */
+.home-page {
+  font-family: var(--font-sans);
+}
+
+.home-page * {
+  font-family: inherit;
+}
+
+.home-container {
+  width: min(1200px, calc(100% - 40px));
+  margin: 64px auto;
+  row-gap: 64px !important;
+}
+
+/* Filters line up with the left-aligned hero title. */
+.home-page .home-search .ant-flex-justify-center {
+  justify-content: flex-start;
+}
+
+.home-page .home-preview.ant-card {
+  border: 0;
+  border-radius: 20px;
+  background: #fff;
+}
+
+.home-page .home-shortcut .ant-card-body {
+  padding: 24px;
+}
+
+.home-page .home-shortcut .ant-typography h4,
+.home-page .home-shortcut h4.ant-typography {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.home-page .home-shortcut .home-caption {
+  font-size: 14px;
+}
+
+/* Sections sit on the page background, like the rest of Home. */
+.home-page .home-section.ant-card {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.home-page .home-section .home-section-body {
+  padding: 0;
+}
+
+.home-page .home-section-title.ant-typography {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.home-page .home-section-title::before {
+  content: none;
+}
+
+.home-page .home-job.ant-card {
+  margin-bottom: 12px;
+  border: 1px solid transparent;
+  border-radius: 20px;
+  transition: border-color 0.15s;
+}
+
+.home-page .home-job.ant-card:hover {
+  border-color: #1f2937;
+}
+
+.home-page .home-job .ant-card-body {
+  padding: 20px 24px;
+}
+
+.home-page .home-job-title.ant-typography,
+.home-page .home-job-title strong {
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.home-page .home-job-meta.ant-typography {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.home-page .home-job .ant-tag {
+  border: 0;
+  border-radius: 999px;
+  background: #f4f5f7;
+  color: #374151;
+  font-weight: 600;
+}
+
+.home-page .home-employer-grid {
+  width: 100%;
+}
+
+.home-page .home-employer-body .ant-avatar {
+  border-radius: 16px;
+  background: #1f2937;
+  color: #fff;
+  font-weight: 800;
+}
+
+.home-page .home-employer-body h3.ant-typography {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.home-page .home-verified {
+  color: #15803d;
+}
+
+.home-page .home-section .ant-btn,
+.home-page .home-section .ant-select-selector,
+.home-page .home-section .ant-select {
+  border-radius: 999px;
 }
