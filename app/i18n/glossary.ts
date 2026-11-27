@@ -561,6 +561,34 @@ export const en = {
     "This feature will be available in a later update.",
   countJobFound: "{count} job found",
   searchByJobTitleSkillsOrCompany: "Search by job title, skills or company",
+  cvEditor: "CV editor",
+  jobsPickedFromYourResume: "Jobs picked from your résumé",
+  tailorYourResumeForEachJob: "Tailor your résumé for each job",
+  resumeInterviewAndTechnicalCourses: "Résumé, interview and technical courses",
+  trackEveryStepOfYourCareer: "Track every step of your career",
+  yourNextJobStartsHere: "Your next job starts here",
+  employersAcrossIndonesiaAreHiringGraduatesAndInterns:
+    "Employers across Indonesia are hiring graduates and interns.",
+  countOpenPositions: "{count} open positions",
+  newHereLoggingInWithYourEmailCreatesYourAccount:
+    "New here? Logging in with your email creates your account.",
+  latestJobs: "Latest jobs",
+  jobsPickedFromYourResumeAndJobIntention:
+    "Jobs picked from your résumé and job intention",
+  fillInNMoreSectionsToStartApplying:
+    "Fill in {n} more sections to start applying",
+  applyToJobs: "Apply to jobs",
+  unlocksAtPercent: "Unlocks at {percent}%",
+  trackYourProgress: "Track your progress",
+  chapters1And2AreFree: "Chapters 1 and 2 are free",
+  howItWorks: "How it works",
+  logInWithYourEmail: "Log in with your email",
+  weSendA6DigitCodeNoPasswordNeeded:
+    "We send a 6-digit code. No password needed.",
+  applyAndTrack: "Apply and track",
+  everyApplicationShowsUpInMessagesAndYourGrowthRecord:
+    "Every application shows up in Messages and your growth record.",
+  logInToUse: "Log in to use",
 } as const;
 
 export type MessageKey = keyof typeof en;
@@ -1132,4 +1160,31 @@ export const id: Record<MessageKey, string> = {
   countJobFound: "{count} lowongan ditemukan",
   searchByJobTitleSkillsOrCompany:
     "Cari berdasarkan jabatan, keahlian, atau perusahaan",
+  cvEditor: "Editor CV",
+  jobsPickedFromYourResume: "Lowongan yang dipilih dari CV Anda",
+  tailorYourResumeForEachJob: "Sesuaikan CV Anda untuk setiap lowongan",
+  resumeInterviewAndTechnicalCourses: "Kursus CV, wawancara, dan teknis",
+  trackEveryStepOfYourCareer: "Catat setiap langkah karier Anda",
+  yourNextJobStartsHere: "Pekerjaan Anda berikutnya dimulai di sini",
+  employersAcrossIndonesiaAreHiringGraduatesAndInterns:
+    "Perusahaan di seluruh Indonesia sedang mencari lulusan dan peserta magang.",
+  countOpenPositions: "{count} posisi dibuka",
+  newHereLoggingInWithYourEmailCreatesYourAccount:
+    "Baru di sini? Masuk dengan email otomatis membuat akun Anda.",
+  latestJobs: "Lowongan terbaru",
+  jobsPickedFromYourResumeAndJobIntention:
+    "Lowongan yang dipilih dari CV dan minat pekerjaan Anda",
+  fillInNMoreSectionsToStartApplying: "Isi {n} bagian lagi untuk mulai melamar",
+  applyToJobs: "Lamar pekerjaan",
+  unlocksAtPercent: "Terbuka di {percent}%",
+  trackYourProgress: "Pantau perkembangan Anda",
+  chapters1And2AreFree: "Bab 1 dan 2 gratis",
+  howItWorks: "Cara kerjanya",
+  logInWithYourEmail: "Masuk dengan email Anda",
+  weSendA6DigitCodeNoPasswordNeeded:
+    "Kami kirim kode 6 digit. Tanpa kata sandi.",
+  applyAndTrack: "Lamar dan pantau",
+  everyApplicationShowsUpInMessagesAndYourGrowthRecord:
+    "Setiap lamaran tercatat di Pesan dan rekam jejak Anda.",
+  logInToUse: "Masuk untuk memakai",
 };

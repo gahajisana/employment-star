@@ -1,27 +1,24 @@
 import type { ThemeConfig } from "antd";
 
-// Scope the reference palette to the homepage, leaving other routes untouched.
+// Style the search controls and results within the shared site layout.
 export const HOME_THEME: ThemeConfig = {
   cssVar: { key: "home" },
   token: {
-    colorPrimary: "#265ff3",
+    colorPrimary: "#C2281B",
     colorInfo: "#265ff3",
     colorInfoBg: "#bfddff",
     colorError: "#ff3025",
     colorErrorBg: "#fff1f0",
-    colorBgLayout: "#f9f8f9",
+    colorBgLayout: "#F4F5F7",
     colorText: "#1c1c20",
     colorTextSecondary: "#85858f",
-    colorTextPlaceholder: "#85858f",
+    colorTextPlaceholder: "#6b7280",
     colorBorder: "#e2e2e8",
     colorBorderSecondary: "#e7e9f0",
     borderRadius: 8,
     borderRadiusLG: 10,
     controlHeight: 38,
     controlHeightSM: 30,
-    fontFamily:
-      '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-    fontSizeHeading1: 28,
     fontSizeHeading2: 18,
     fontSizeHeading3: 20,
     fontSizeHeading4: 16,

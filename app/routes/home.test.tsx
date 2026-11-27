@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import { LanguageSwitcher } from "../i18n/language-switcher";
 import Home, { meta } from "./home";
+import { shouldRevalidate } from "./lang-layout";
 
 function LocationControls() {
   const location = useLocation();
@@ -21,10 +22,13 @@ function LocationControls() {
   );
 }
 
-function renderHome(entry = "/en") {
+function renderHome(entry = "/en", email: string | null = null) {
   const Stub = createRoutesStub([
     {
+      id: "routes/lang-layout",
       path: "/:lang",
+      loader: () => ({ email }),
+      shouldRevalidate,
       Component: () => (
         <>
           <LanguageSwitcher />
@@ -329,9 +333,9 @@ describe("Home (P01)", () => {
     await userEvent.click(
       screen.getByRole("link", { name: "Bahasa Indonesia" }),
     );
-    expect(screen.getByLabelText("Cari lowongan atau perusahaan")).toHaveValue(
-      "unsubmitted keyword",
-    );
+    expect(
+      await screen.findByLabelText("Cari lowongan atau perusahaan"),
+    ).toHaveValue("unsubmitted keyword");
     expect(location()).toContain("/id?");
     expect(location()).toContain("province=DKI+Jakarta");
     expect(location()).toContain("jobType=fullTime");
@@ -474,6 +478,40 @@ describe("Home (P01)", () => {
       "true",
     );
     expect(screen.getByRole("group", { name: "Location" })).toBeInTheDocument();
+  });
+});
+
+describe("Home session views", () => {
+  it("keeps the guest landing and its localized login link", async () => {
+    renderHome("/id");
+    const main = within(await screen.findByRole("main"));
+    expect(main.getByRole("heading", { name: "Cara kerjanya" })).toBeVisible();
+    expect(main.getByRole("link", { name: "Masuk" })).toHaveAttribute(
+      "href",
+      "/id/login",
+    );
+    expect(main.queryByRole("progressbar")).not.toBeInTheDocument();
+  });
+
+  it("uses the same working search from the member dashboard", async () => {
+    renderHome("/en", "member@example.com");
+    expect(await screen.findByRole("progressbar")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Recommended jobs" }),
+    ).toBeVisible();
+    expect(screen.queryByRole("heading", { name: "How it works" })).toBeNull();
+
+    const input = screen.getByRole("textbox", {
+      name: "Search jobs or companies",
+    });
+    await userEvent.type(input, "Telkom{Enter}");
+    expect(await screen.findByText("3 jobs found")).toBeVisible();
+    expect(location()).toBe("/en?q=Telkom");
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "Clear all" }));
+    expect(await screen.findByRole("progressbar")).toBeInTheDocument();
+    expect(location()).toBe("/en");
   });
 });
 

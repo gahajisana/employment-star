@@ -9,7 +9,7 @@ import {
   Space,
 } from "antd";
 import { useState, type KeyboardEvent } from "react";
-import { redirect, useLoaderData } from "react-router";
+import { Form, redirect, useLoaderData } from "react-router";
 
 import { REGIONS } from "../data/regions";
 import {
@@ -82,7 +82,7 @@ const CITY_OPTIONS = Object.entries(REGIONS).map(([province, cities]) => ({
   children: cities.map((city) => ({ value: city, label: city })),
 }));
 
-const label = "text-sm font-medium";
+const label = "text-sm font-bold text-[#374151]";
 const errorClass = "text-[13px] text-[#B42318]";
 
 const initials = (name: string) =>
@@ -176,6 +176,7 @@ export default function Profile() {
   ) => (
     <Cascader
       id={id}
+      style={{ width: "100%" }}
       showSearch
       options={CITY_OPTIONS}
       {...invalid(id, error)}
@@ -201,14 +202,13 @@ export default function Profile() {
     const cityError = firstError(basicErrors, "province", "city");
     const linkedinError = firstError(basicErrors, "linkedinUrl");
     return (
-      <div className="flex flex-col gap-5">
+      <div className="grid gap-x-5 gap-y-6 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
           <label className={label} htmlFor="basic-fullName">
             {t("fullName")}
           </label>
           <Input
             id="basic-fullName"
-            variant="filled"
             maxLength={NAME_MAX}
             {...invalid("basic-fullName", nameError)}
             value={basic.fullName}
@@ -234,7 +234,6 @@ export default function Profile() {
           </label>
           <Input
             id="basic-whatsapp"
-            variant="filled"
             inputMode="tel"
             autoComplete="tel"
             {...invalid("basic-whatsapp", whatsappError)}
@@ -257,13 +256,12 @@ export default function Profile() {
           )}
           {say("basic-location", cityError)}
         </div>
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1.5 sm:col-span-2">
           <label className={label} htmlFor="basic-linkedinUrl">
             {t("linkedinUrl")}
           </label>
           <Input
             id="basic-linkedinUrl"
-            variant="filled"
             type="url"
             maxLength={URL_MAX}
             placeholder="https://www.linkedin.com/in/…"
@@ -274,7 +272,7 @@ export default function Profile() {
           />
           {say("basic-linkedinUrl", linkedinError)}
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 border-0 border-t border-solid border-[#F1F2F4] pt-6 sm:col-span-2">
           <Button
             type="primary"
             disabled={!basicChanged}
@@ -330,7 +328,7 @@ export default function Profile() {
       />
     );
     return (
-      <div className="flex flex-col gap-5">
+      <div className="grid gap-x-5 gap-y-6 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
           <label className={label} htmlFor="profile-expectedRole">
             {t("expectedRole")}
@@ -385,7 +383,7 @@ export default function Profile() {
           />
           {say("profile-jobSeekingStatus", statusError)}
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 border-0 border-t border-solid border-[#F1F2F4] pt-6 sm:col-span-2">
           <Button
             type="primary"
             disabled={!intentionCheck.ok}
@@ -418,32 +416,61 @@ export default function Profile() {
     ),
   };
 
+  const meterColor = applyOk ? "bg-[#15803D]" : "bg-[#D97706]";
+
   return (
     <ConfigProvider
       theme={{
-        token: { colorPrimary: "#1D4ED8", borderRadius: 8, controlHeight: 44 },
+        token: {
+          colorPrimary: "#E8392B",
+          borderRadius: 12,
+          controlHeight: 44,
+        },
       }}
     >
-      <main className="mx-auto flex max-w-[1180px] flex-col gap-6 px-5 py-8 text-[#1F2937]">
-        <section className="rounded-xl border border-solid border-[#E5E7EB] bg-white p-5">
-          <div className="flex items-center gap-4 rounded-lg bg-[#FEF1F0] p-5">
+      <main className="mx-auto flex max-w-[1240px] flex-col gap-6 px-5 py-10 text-[#1F2937]">
+        <section className="flex flex-col gap-5 rounded-[20px] bg-white p-6 sm:flex-row sm:items-center sm:justify-between md:px-8">
+          <div className="flex items-center gap-4">
             <div
               aria-hidden="true"
-              className="flex h-14 w-14 flex-none items-center justify-center rounded-full bg-[#E8392B] text-lg font-bold text-white"
+              className="flex h-16 w-16 flex-none items-center justify-center rounded-full bg-[#1F2937] text-xl font-extrabold text-white"
             >
               {initials(savedBasic.fullName)}
             </div>
-            <h1 className="m-0 text-lg font-bold">{savedBasic.fullName}</h1>
+            <div className="flex min-w-0 flex-col gap-0.5">
+              <h1 className="m-0 truncate text-2xl leading-tight font-extrabold tracking-tight">
+                {savedBasic.fullName}
+              </h1>
+              <span className="truncate text-sm text-[#6B7280]">{email}</span>
+            </div>
           </div>
+          <Form method="post" action="/api/auth/logout">
+            <input type="hidden" name="redirectTo" value={`/${lang}/login`} />
+            <button
+              type="submit"
+              className="flex cursor-pointer items-center gap-2 rounded-full border border-solid border-[#D9DCE1] bg-white px-4 py-2 text-sm font-bold text-[#374151] hover:border-[#B42318] hover:text-[#B42318] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1F2937]"
+            >
+              <svg
+                aria-hidden
+                viewBox="0 0 20 20"
+                className="h-4 w-4"
+                fill="currentColor"
+              >
+                <path d="M3 4.5A1.5 1.5 0 014.5 3h5a1 1 0 010 2H5v10h4.5a1 1 0 110 2h-5A1.5 1.5 0 013 15.5v-11zm9.3 1.8a1 1 0 011.4 0l3 3a1 1 0 010 1.4l-3 3a1 1 0 01-1.4-1.4l1.3-1.3H8a1 1 0 110-2h5.6l-1.3-1.3a1 1 0 010-1.4z" />
+              </svg>
+              {t("logOut")}
+            </button>
+          </Form>
         </section>
 
-        <div className="grid overflow-hidden rounded-xl border border-solid border-[#E5E7EB] bg-white md:grid-cols-[minmax(260px,1fr)_2fr]">
-          <aside className="border-0 border-[#E5E7EB] md:border-r md:border-solid">
+        <div className="grid gap-6 md:grid-cols-[300px_1fr] md:items-start">
+          <aside className="flex flex-col gap-4">
             <div
               role="tablist"
               aria-orientation="vertical"
               aria-label={t("myProfile")}
               onKeyDown={onTabKey}
+              className="flex flex-col gap-1 rounded-[20px] bg-white p-2"
             >
               {TABS.map((id) => {
                 const selected = tab === id;
@@ -457,10 +484,10 @@ export default function Profile() {
                     aria-controls={`panel-${id}`}
                     tabIndex={selected ? 0 : -1}
                     onClick={() => setTab(id)}
-                    className={`block min-h-12 w-full cursor-pointer border-0 border-b border-solid border-[#E5E7EB] px-5 py-3.5 text-left text-base ${
+                    className={`min-h-11 w-full cursor-pointer rounded-xl border-0 px-4 py-2.5 text-left text-[15px] focus-visible:outline-2 focus-visible:outline-[#1F2937] ${
                       selected
-                        ? "bg-[#DBEAFE] font-semibold text-[#1D4ED8]"
-                        : "bg-[#F7F7F8] text-[#1F2937]"
+                        ? "bg-[#F4F5F7] font-bold text-[#1F2937]"
+                        : "bg-transparent font-medium text-[#374151] hover:bg-[#F4F5F7]"
                     }`}
                   >
                     {t(id)}
@@ -469,30 +496,40 @@ export default function Profile() {
               })}
             </div>
 
-            <section className="flex flex-col gap-3 p-6">
-              <h2 className="m-0 border-0 border-l-4 border-solid border-[#1D4ED8] pl-2 text-xl font-bold text-[#1D4ED8]">
-                {t("resumeCompleteness")}
-              </h2>
+            <section className="flex flex-col gap-3 rounded-[20px] bg-white p-5">
+              <div className="flex items-baseline justify-between gap-2">
+                <h2 className="m-0 text-[15px] font-bold">
+                  {t("resumeCompleteness")}
+                </h2>
+                <span className="text-xl font-extrabold tabular-nums">
+                  {percent}%
+                </span>
+              </div>
               <div
                 role="progressbar"
                 aria-label={t("resumeCompleteness")}
                 aria-valuemin={0}
                 aria-valuemax={100}
                 aria-valuenow={percent}
-                className="h-2.5 overflow-hidden rounded-full bg-[#F1F1F3]"
+                className="relative h-2 rounded-full bg-[#F1F2F4]"
               >
                 <div
-                  className={`h-full ${applyOk ? "bg-[#166534]" : "bg-[#E8392B]"}`}
+                  className={`absolute inset-y-0 left-0 rounded-full ${meterColor}`}
                   style={{ width: `${percent}%` }}
                 />
+                {/* The 70% apply threshold (F18). */}
+                <div
+                  aria-hidden
+                  className="absolute -top-1 -bottom-1 w-0.5 rounded bg-[#1F2937]"
+                  style={{ left: `${APPLY_THRESHOLD}%` }}
+                />
               </div>
-              <div className="text-[#6B7280]">{percent}%</div>
               {!applyOk && (
-                <div className="rounded-lg border border-solid border-[#E8392B] bg-[#FEF1F0] p-4 text-[#C2281B]">
+                <p className="m-0 rounded-xl bg-[#FFF7E6] px-3.5 py-3 text-sm text-[#92400E]">
                   {t("completeAtLeastPercentOfYourResumeToApply", {
                     percent: APPLY_THRESHOLD,
                   })}
-                </div>
+                </p>
               )}
             </section>
           </aside>
@@ -501,9 +538,9 @@ export default function Profile() {
             id={`panel-${tab}`}
             role="tabpanel"
             aria-labelledby={`tab-${tab}`}
-            className="p-6"
+            className="rounded-[20px] bg-white p-6 md:p-8"
           >
-            <h2 className="mt-0 mb-6 border-0 border-b border-solid border-[#E5E7EB] pb-4 text-xl font-bold">
+            <h2 className="mt-0 mb-6 text-xl font-extrabold tracking-tight">
               {t(tab)}
             </h2>
             {panels[tab]()}

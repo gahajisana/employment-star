@@ -11,5 +11,23 @@ export default [
     index("routes/home.tsx"),
     route("login", "routes/login.tsx"),
     route("profile", "routes/profile.tsx"),
+    // shortcut: one "coming soon" page per menu item until each feature is built.
+    route("jobs/:jobId", "routes/coming-soon.tsx", {
+      id: "coming-soon-job-detail",
+    }),
+    ...[
+      "jobs",
+      "companies",
+      "classes",
+      "cv-editor",
+      "messages",
+      "growth-record",
+      "recommendations",
+      "applications",
+      "saved-jobs",
+      "employer",
+    ].map((path) =>
+      route(path, "routes/coming-soon.tsx", { id: `coming-soon-${path}` }),
+    ),
   ]),
 ] satisfies RouteConfig;
