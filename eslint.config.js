@@ -46,6 +46,7 @@ export default tseslint.config(
             "links",
             "loader",
             "meta",
+            "shouldRevalidate",
           ],
         },
       ],

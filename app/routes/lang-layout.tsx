@@ -2,7 +2,7 @@ import { env } from "cloudflare:workers";
 import { ConfigProvider } from "antd";
 import enUS from "antd/locale/en_US";
 import idID from "antd/locale/id_ID";
-import { data, Outlet } from "react-router";
+import { data, Outlet, type ShouldRevalidateFunctionArgs } from "react-router";
 
 import { SiteFooter, SiteHeader } from "../components/site-header";
 import { isLang, useLang } from "../i18n";
@@ -16,6 +16,25 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!isLang(params.lang)) throw data(null, { status: 404 });
   const user = await getCurrentUser(request, env);
   return { email: user?.email ?? null };
+}
+
+export function shouldRevalidate({
+  currentParams,
+  currentUrl,
+  nextUrl,
+  formMethod,
+  defaultShouldRevalidate,
+}: ShouldRevalidateFunctionArgs) {
+  // Home filters are client-side; changing them does not change the session.
+  if (
+    !formMethod &&
+    currentUrl.pathname === nextUrl.pathname &&
+    currentUrl.pathname.replace(/\/$/, "") === `/${currentParams.lang}` &&
+    currentUrl.search !== nextUrl.search
+  ) {
+    return false;
+  }
+  return defaultShouldRevalidate;
 }
 
 export default function LangLayout() {

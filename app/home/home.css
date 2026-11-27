@@ -1,0 +1,130 @@
+/* Layout details only; colors and component styling come from Ant Design tokens. */
+.home-container {
+  width: min(1200px, calc(100% - 32px));
+  margin: 20px auto 60px;
+}
+
+.home-search {
+  width: min(752px, 100%);
+}
+
+.home-keyword-bar {
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--ant-color-bg-container);
+}
+
+.home-keyword-input {
+  min-width: 0;
+}
+
+.home-filter {
+  width: 126px;
+  max-width: calc(50% - 5px);
+}
+
+.home-page .home-filter-trigger {
+  justify-content: space-between;
+  padding-inline: 10px;
+}
+
+.home-page .home-filter-chevron {
+  color: var(--ant-color-error);
+}
+
+.home-page .home-clear {
+  color: var(--ant-color-text);
+}
+
+.home-filter-panel {
+  width: 320px;
+  max-width: calc(100vw - 64px);
+}
+
+.home-salary-input {
+  flex: 1;
+  width: 0;
+  min-width: 0;
+}
+
+.home-filter-chip {
+  max-width: 100%;
+}
+
+.home-filter-chip-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-preview {
+  height: 100%;
+  cursor: pointer;
+}
+
+.home-preview:focus-visible {
+  outline: 2px solid var(--ant-color-primary);
+  outline-offset: 3px;
+}
+
+.home-shortcut {
+  min-height: 96px;
+}
+
+.home-page .home-caption {
+  font-size: 12px;
+}
+
+.home-page .home-section {
+  box-shadow: var(--ant-box-shadow-tertiary);
+}
+
+.home-page .home-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.home-section-title::before {
+  width: 4px;
+  height: 18px;
+  border-radius: 2px;
+  background: var(--ant-color-primary);
+  content: "";
+}
+
+.home-page .home-job {
+  border-bottom: 1px solid var(--ant-color-border-secondary);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.home-page .home-job-title {
+  font-size: 15px;
+}
+
+.home-page .home-job-meta {
+  font-size: 13px;
+}
+
+.home-employer-grid {
+  width: min(1010px, 100%);
+  margin-inline: auto;
+}
+
+.home-page .home-employer-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.home-page .home-verified {
+  color: var(--ant-color-success);
+  font-size: 20px;
+}
+
+@media (max-width: 575px) {
+  .home-page .home-section-body {
+    padding: 16px;
+  }
+}
